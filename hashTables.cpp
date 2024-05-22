@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono;
 
 // Funkcje haszujące
-//funkcja hashujaca na bazie ASCII
+// Funkcja hashująca na bazie ASCII
 unsigned int hashASCII(const std::string &key) {
     unsigned int hash = 0;
     for (char c : key) {
@@ -18,7 +18,7 @@ unsigned int hashASCII(const std::string &key) {
     return hash;
 }
 
-//funkcja hashujaca na bazie djb2
+// Funkcja hashująca na bazie djb2
 unsigned int hashDJB2(const std::string &key) {
     unsigned int hash = 5381;
     for (char c : key) {
@@ -58,6 +58,10 @@ public:
             }
         }
     }
+
+    void printHashForKey(const K& key) {
+        cout << "Hash dla \"" << key << "\": " << hashFunction(key) << endl;
+    }
 };
 
 int main() {
@@ -66,15 +70,10 @@ int main() {
     string keyBase = "struktury danych";
 
     for (int data : tab) {
-        vector<long long> insertTimesASCII(repetitions);
-        vector<long long> removeTimesASCII(repetitions);
-        vector<long long> insertTimesDJB2(repetitions);
-        vector<long long> removeTimesDJB2(repetitions);
-
         cout << "-----------------------" << data << "-----------------------" << endl;
 
         // Testowanie ASCII
-        for (int r = 0; r < repetitions; ++r) {
+        {
             HashTable<string, int> hashTableASCII(hashASCII, data);
 
             // Dodanie elementów
@@ -83,17 +82,20 @@ int main() {
                 hashTableASCII.insert(keyBase + to_string(i), i);
             }
             auto stop = high_resolution_clock::now();
-            insertTimesASCII[r] = duration_cast<nanoseconds>(stop - start).count();
+            long long insertTimeASCII = duration_cast<nanoseconds>(stop - start).count();
+            cout << "ASCII: Czas dodania " << data << " elementów: " << insertTimeASCII << " nanosekund." << endl;
 
             // Usunięcie elementu
             start = high_resolution_clock::now();
             hashTableASCII.remove(keyBase + "0");
             stop = high_resolution_clock::now();
-            removeTimesASCII[r] = duration_cast<nanoseconds>(stop - start).count();
+            long long removeTimeASCII = duration_cast<nanoseconds>(stop - start).count();
+            cout << "ASCII: Czas usunięcia elementu: " << removeTimeASCII << " nanosekund." << endl;
+
         }
 
         // Testowanie DJB2
-        for (int r = 0; r < repetitions; ++r) {
+        {
             HashTable<string, int> hashTableDJB2(hashDJB2, data);
 
             // Dodanie elementów
@@ -102,26 +104,17 @@ int main() {
                 hashTableDJB2.insert(keyBase + to_string(i), i);
             }
             auto stop = high_resolution_clock::now();
-            insertTimesDJB2[r] = duration_cast<nanoseconds>(stop - start).count();
+            long long insertTimeDJB2 = duration_cast<nanoseconds>(stop - start).count();
+            cout << "DJB2: Czas dodania " << data << " elementów: " << insertTimeDJB2 << " nanosekund." << endl;
 
             // Usunięcie elementu
             start = high_resolution_clock::now();
             hashTableDJB2.remove(keyBase + "0");
             stop = high_resolution_clock::now();
-            removeTimesDJB2[r] = duration_cast<nanoseconds>(stop - start).count();
+            long long removeTimeDJB2 = duration_cast<nanoseconds>(stop - start).count();
+            cout << "DJB2: Czas usunięcia elementu: " << removeTimeDJB2 << " nanosekund." << endl;
+
         }
-
-        // Obliczenie średnich czasów
-        long long avgInsertTimeASCII = accumulate(insertTimesASCII.begin(), insertTimesASCII.end(), 0LL) / repetitions;
-        long long avgRemoveTimeASCII = accumulate(removeTimesASCII.begin(), removeTimesASCII.end(), 0LL) / repetitions;
-        long long avgInsertTimeDJB2 = accumulate(insertTimesDJB2.begin(), insertTimesDJB2.end(), 0LL) / repetitions;
-        long long avgRemoveTimeDJB2 = accumulate(removeTimesDJB2.begin(), removeTimesDJB2.end(), 0LL) / repetitions;
-
-        // Wyświetlenie wyników
-        cout << "ASCII: Średni czas dodania " << data << " elementów: " << avgInsertTimeASCII << " nanosekund." << endl;
-        cout << "ASCII: Średni czas usunięcia elementu: " << avgRemoveTimeASCII << " nanosekund." << endl<<endl;
-        cout << "DJB2: Średni czas dodania " << data << " elementów: " << avgInsertTimeDJB2 << " nanosekund." << endl;
-        cout << "DJB2: Średni czas usunięcia elementu: " << avgRemoveTimeDJB2 << " nanosekund." << endl;
 
         cout << endl;
     }
